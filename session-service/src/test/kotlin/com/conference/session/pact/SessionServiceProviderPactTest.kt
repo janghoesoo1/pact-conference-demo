@@ -6,6 +6,7 @@ import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvide
 import au.com.dius.pact.provider.junitsupport.Provider
 import au.com.dius.pact.provider.junitsupport.State
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder
+import com.conference.common.model.Session
 import com.conference.session.store.SessionStore
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestTemplate
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import java.time.LocalDateTime
 
 @Provider("SessionService")
 @PactFolder("../attendee-service/build/pacts")
@@ -38,16 +40,40 @@ class SessionServiceProviderPactTest {
 
     @State("세션 ID 1이 존재함")
     fun sessionWithId1Exists() {
-        // SessionStore 초기 데이터에 ID 1이 이미 존재하므로 추가 설정 불필요
+        sessionStore.clear()
+        sessionStore.addSession(Session(
+            title = "gRPC로 마이크로서비스 구축하기",
+            speaker = "장호",
+            description = "gRPC를 활용한 고성능 마이크로서비스 통신 방법을 소개합니다.",
+            dateTime = LocalDateTime.of(2024, 9, 15, 10, 0)
+        ))
     }
 
     @State("세션 목록이 존재함")
     fun sessionsExist() {
-        // 초기 데이터 3건이 이미 로드되어 있으므로 추가 설정 불필요
+        sessionStore.clear()
+        sessionStore.addSession(Session(
+            title = "gRPC로 마이크로서비스 구축하기",
+            speaker = "장호",
+            description = "gRPC를 활용한 고성능 마이크로서비스 통신 방법을 소개합니다.",
+            dateTime = LocalDateTime.of(2024, 9, 15, 10, 0)
+        ))
+        sessionStore.addSession(Session(
+            title = "API 게이트웨이 패턴",
+            speaker = "김현수",
+            description = "API 게이트웨이의 다양한 패턴과 구현 전략을 살펴봅니다.",
+            dateTime = LocalDateTime.of(2024, 9, 15, 14, 0)
+        ))
+        sessionStore.addSession(Session(
+            title = "계약 테스트 실전",
+            speaker = "이서연",
+            description = "Pact 프레임워크를 사용한 CDC 테스트 실전 사례를 공유합니다.",
+            dateTime = LocalDateTime.of(2024, 9, 16, 10, 0)
+        ))
     }
 
     @State("세션 ID 999가 존재하지 않음")
     fun sessionWithId999DoesNotExist() {
-        // 999번 세션은 존재하지 않으므로 추가 설정 불필요
+        sessionStore.clear()
     }
 }

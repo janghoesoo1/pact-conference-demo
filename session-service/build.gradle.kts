@@ -9,3 +9,7 @@ dependencies {
     testImplementation("au.com.dius.pact.provider:junit5:4.6.14")
     testImplementation("au.com.dius.pact.provider:spring:4.6.14")
 }
+
+tasks.test {
+    dependsOn(":attendee-service:test")
+}
