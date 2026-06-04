@@ -1,5 +1,6 @@
 package com.conference.session.controller
 
+import com.conference.common.exception.GlobalExceptionHandler
 import com.conference.common.exception.ResourceNotFoundException
 import com.conference.common.model.Session
 import com.conference.session.store.SessionStore
@@ -17,7 +18,7 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import java.time.LocalDateTime
 
-@WebMvcTest(SessionController::class)
+@WebMvcTest(SessionController::class, GlobalExceptionHandler::class)
 class SessionControllerTest {
 
     @Autowired

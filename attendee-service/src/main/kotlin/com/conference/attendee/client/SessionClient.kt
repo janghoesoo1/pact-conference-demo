@@ -11,11 +11,17 @@ import org.springframework.web.client.RestClientResponseException
 class SessionClient(private val sessionRestClient: RestClient) {
 
     fun getSessions(): List<Session> {
-        val response = sessionRestClient.get()
-            .uri("/sessions")
-            .retrieve()
-            .body(object : ParameterizedTypeReference<ApiResponse<Session>>() {})
-        return response?.data ?: emptyList()
+        return try {
+            val response = sessionRestClient.get()
+                .uri("/sessions")
+                .retrieve()
+                .body(object : ParameterizedTypeReference<ApiResponse<Session>>() {})
+            response?.data ?: emptyList()
+        } catch (e: RestClientResponseException) {
+            emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     fun getSession(id: Int): Session? {

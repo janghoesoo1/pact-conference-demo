@@ -1,13 +1,11 @@
 package com.conference.session.controller
 
-import com.conference.common.exception.ResourceNotFoundException
 import com.conference.common.model.ApiResponse
 import com.conference.common.model.Session
 import com.conference.session.store.SessionStore
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.net.URI
 
+@CrossOrigin(origins = ["*"])
 @RestController
 @RequestMapping("/sessions")
 class SessionController(private val sessionStore: SessionStore) {
@@ -60,10 +59,4 @@ class SessionController(private val sessionStore: SessionStore) {
         return ResponseEntity.ok().build()
     }
 
-    @ExceptionHandler(ResourceNotFoundException::class)
-    fun handleResourceNotFound(ex: ResourceNotFoundException): ResponseEntity<Map<String, String>> {
-        return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
-            .body(mapOf("error" to (ex.message ?: "Not found")))
-    }
 }

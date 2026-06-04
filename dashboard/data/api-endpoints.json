@@ -1,0 +1,103 @@
+{
+  "session": [
+    {
+      "method": "GET",
+      "path": "/sessions",
+      "description": "세션 목록 조회",
+      "hasId": false,
+      "hasBody": false
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{id}",
+      "description": "세션 상세 조회",
+      "hasId": true,
+      "hasBody": false
+    },
+    {
+      "method": "POST",
+      "path": "/sessions",
+      "description": "세션 생성",
+      "hasId": false,
+      "hasBody": true,
+      "sampleBody": {
+        "title": "새 세션",
+        "speaker": "홍길동",
+        "description": "세션 설명"
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/sessions/{id}",
+      "description": "세션 수정",
+      "hasId": true,
+      "hasBody": true,
+      "sampleBody": {
+        "title": "수정된 세션",
+        "speaker": "장호",
+        "description": "수정된 설명"
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/sessions/{id}",
+      "description": "세션 삭제",
+      "hasId": true,
+      "hasBody": false
+    }
+  ],
+  "attendee": [
+    {
+      "method": "GET",
+      "path": "/attendees",
+      "description": "참석자 목록 조회",
+      "hasId": false,
+      "hasBody": false
+    },
+    {
+      "method": "GET",
+      "path": "/attendees/{id}",
+      "description": "참석자 상세 조회",
+      "hasId": true,
+      "hasBody": false
+    },
+    {
+      "method": "GET",
+      "path": "/attendees/{id}/sessions",
+      "description": "참석자의 세션 목록",
+      "hasId": true,
+      "hasBody": false
+    },
+    {
+      "method": "POST",
+      "path": "/attendees",
+      "description": "참석자 등록",
+      "hasId": false,
+      "hasBody": true,
+      "sampleBody": {
+        "givenName": "길동",
+        "surname": "홍",
+        "email": "hong@test.com"
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/attendees/{id}",
+      "description": "참석자 수정",
+      "hasId": true,
+      "hasBody": true,
+      "sampleBody": {
+        "givenName": "수정",
+        "surname": "김",
+        "email": "kim@test.com"
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/attendees/{id}",
+      "description": "참석자 삭제",
+      "hasId": true,
+      "hasBody": false
+    }
+  ]
+}

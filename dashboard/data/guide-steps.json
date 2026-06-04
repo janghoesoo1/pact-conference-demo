@@ -1,0 +1,51 @@
+[
+  {
+    "step": 1,
+    "title": "마이크로서비스와 API 호환성 문제",
+    "content": "마이크로서비스 환경에서 서비스 A가 서비스 B의 API를 사용할 때, B가 API를 변경하면 A가 예상치 못하게 깨질 수 있습니다. 이 프로젝트에서 AttendeeService(Consumer)는 SessionService(Provider)의 GET /sessions API를 호출합니다.",
+    "keyPoint": "서비스가 독립적으로 배포되면 API 호환성 문제가 핵심 과제가 됩니다.",
+    "code": "// AttendeeController.kt\n@GetMapping(\"/attendees/{id}/sessions\")\nfun getAttendeeSessions(@PathVariable id: Int): ResponseEntity<*> {\n    attendeeStore.getAttendee(id)\n    val sessions = sessionClient.getSessions()\n    return ResponseEntity.ok(sessions)\n}"
+  },
+  {
+    "step": 2,
+    "title": "E2E 테스트의 한계",
+    "content": "모든 서비스를 함께 띄우고 E2E 테스트로 검증할 수 있지만, 느리고 불안정하고 비용이 큽니다. 테스트 피라미드에서 E2E는 상위 3%만 권장합니다.",
+    "keyPoint": "E2E 테스트는 느리고 불안정합니다. 계약 테스트는 빠르고 안정적인 대안입니다.",
+    "code": ""
+  },
+  {
+    "step": 3,
+    "title": "Consumer-Driven Contract (CDC)",
+    "content": "CDC에서는 Consumer(소비자)가 자신이 실제로 필요한 요청/응답 형태를 '계약'으로 작성합니다. Provider(제공자)는 이 계약을 만족하는지 검증합니다. Provider가 Consumer가 사용하지 않는 필드를 변경해도 계약 위반이 되지 않습니다.",
+    "keyPoint": "Consumer가 필요한 것만 계약에 포함하므로, 불필요한 Breaking Change를 방지합니다.",
+    "code": "@Pact(consumer = \"AttendeeService\")\nfun getSessionsPact(builder: PactDslWithProvider): RequestResponsePact {\n    return builder\n        .given(\"세션 목록이 존재함\")\n        .uponReceiving(\"전체 세션 목록 조회 요청\")\n        .path(\"/sessions\")\n        .method(\"GET\")\n        .willRespondWith()\n        .status(200)\n        // ...\n}"
+  },
+  {
+    "step": 4,
+    "title": "Pact MockServer",
+    "content": "Consumer 테스트 실행 시 Pact 라이브러리가 MockServer를 자동으로 시작합니다. Consumer의 SessionClient는 이 MockServer에 HTTP 요청을 보냅니다. MockServer는 계약에 정의된 대로 응답하고, 요청이 계약과 일치하는지 검증합니다.",
+    "keyPoint": "실제 Provider 서비스 없이도 Consumer를 독립적으로 테스트할 수 있습니다.",
+    "code": "@Test\n@PactTestFor(pactMethod = \"getSessionsPact\")\nfun `세션 목록 조회 시 세션 리스트를 반환한다`(mockServer: MockServer) {\n    val restClient = RestClient.builder()\n        .baseUrl(mockServer.getUrl())\n        .build()\n    val client = SessionClient(restClient)\n    val sessions = client.getSessions()\n    assertThat(sessions).hasSize(3)\n}"
+  },
+  {
+    "step": 5,
+    "title": "Provider State와 데이터 준비",
+    "content": "Consumer가 계약에 '.given(\"세션 목록이 존재함\")'과 같은 전제 조건을 정의합니다. Provider 테스트에서는 @State 어노테이션으로 이 조건을 실제로 충족시킵니다. 이를 통해 Provider가 특정 상태에서 정확한 응답을 반환하는지 검증합니다.",
+    "keyPoint": "@State 메서드 이름은 Consumer의 .given() 문자열과 정확히 일치해야 합니다.",
+    "code": "@State(\"세션 목록이 존재함\")\nfun sessionsExist() {\n    sessionStore.clear()\n    sessionStore.addSession(Session(title = \"gRPC로 마이크로서비스 구축하기\", speaker = \"장호\", ...))\n    sessionStore.addSession(Session(title = \"API 게이트웨이 패턴\", speaker = \"김현수\", ...))\n    sessionStore.addSession(Session(title = \"계약 테스트 실전\", speaker = \"이서연\", ...))\n}"
+  },
+  {
+    "step": 6,
+    "title": "매칭 규칙 (Type vs Value)",
+    "content": "Pact에서 integerType('id', 1)은 'id 필드가 정수형이면 OK'라는 뜻입니다. 값 1은 예시일 뿐, 실제 값이 42여도 통과합니다. stringType도 마찬가지입니다. 이렇게 타입 기반 매칭을 사용하면 Provider가 값을 변경해도 계약이 깨지지 않습니다.",
+    "keyPoint": "타입 매칭은 유연한 계약을 만들고, 값 매칭은 엄격한 계약을 만듭니다.",
+    "code": ".body(PactDslJsonBody()\n    .integerType(\"id\", 1L)      // 정수이기만 하면 통과\n    .stringType(\"title\", \"...\")  // 문자열이기만 하면 통과\n    .stringType(\"speaker\", \"...\")\n)"
+  },
+  {
+    "step": 7,
+    "title": "Pact Broker와 CI/CD 통합",
+    "content": "로컬에서는 Pact 파일을 직접 공유하지만, 실제 CI/CD에서는 Pact Broker를 사용합니다. Consumer가 계약을 Broker에 게시하고, Provider가 Broker에서 계약을 가져와 검증합니다. can-i-deploy 명령으로 배포 전 호환성을 자동 확인할 수 있습니다.",
+    "keyPoint": "Pact Broker는 계약의 중앙 저장소이자, 배포 가능 여부를 판단하는 게이트입니다.",
+    "code": "# Consumer 계약 게시\npact-cli publish /pacts \\\n  --broker-base-url=http://localhost:9292\n\n# 배포 가능 여부 확인\npact-cli broker can-i-deploy \\\n  --pacticipant=AttendeeService \\\n  --version=1.0.0"
+  }
+]

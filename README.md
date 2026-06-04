@@ -27,7 +27,7 @@ pact-conference-demo/
 ## 빠른 시작
 
 ### 사전 요구사항
-- JDK 17+
+- JDK 21+
 - Docker & Docker Compose
 
 ### 1. Pact Broker 실행

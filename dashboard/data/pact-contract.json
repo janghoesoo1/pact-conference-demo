@@ -1,0 +1,207 @@
+{
+  "consumer": {
+    "name": "AttendeeService"
+  },
+  "interactions": [
+    {
+      "description": "세션 1 조회 요청",
+      "providerStates": [
+        {
+          "name": "세션 ID 1이 존재함"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/sessions/1"
+      },
+      "response": {
+        "body": {
+          "dateTime": "2024-09-15T10:00:00",
+          "description": "gRPC를 활용한 고성능 마이크로서비스 통신 방법을 소개합니다.",
+          "id": 1,
+          "speaker": "장호",
+          "title": "gRPC로 마이크로서비스 구축하기"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.dateTime": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.description": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.speaker": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.title": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "존재하지 않는 세션 조회 요청",
+      "providerStates": [
+        {
+          "name": "세션 ID 999가 존재하지 않음"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/sessions/999"
+      },
+      "response": {
+        "status": 404
+      }
+    },
+    {
+      "description": "전체 세션 목록 조회 요청",
+      "providerStates": [
+        {
+          "name": "세션 목록이 존재함"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/sessions"
+      },
+      "response": {
+        "body": {
+          "data": [
+            {
+              "id": 100,
+              "speaker": "장호",
+              "title": "gRPC로 마이크로서비스 구축하기"
+            },
+            {
+              "id": 100,
+              "speaker": "장호",
+              "title": "gRPC로 마이크로서비스 구축하기"
+            },
+            {
+              "id": 100,
+              "speaker": "장호",
+              "title": "gRPC로 마이크로서비스 구축하기"
+            }
+          ],
+          "total": 100
+        },
+        "generators": {
+          "body": {
+            "$.data[*].id": {
+              "max": 2147483647,
+              "min": 0,
+              "type": "RandomInt"
+            },
+            "$.total": {
+              "max": 2147483647,
+              "min": 0,
+              "type": "RandomInt"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.data": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.data[*].id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.data[*].speaker": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.data[*].title": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.total": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.6.14"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "SessionService"
+  }
+}
